@@ -1,25 +1,5 @@
-version: '3.8'
-
+version: "3.5"
 services:
-  ts-node-docker:
-    build: .
-    volumes:
-      - ./src:/home/node/app/src
-      - ./nodemon.json:/home/node/app/nodemon.json
-    container_name: ts-node-docker
-    expose:
-      - '${APP_PORT}'
-    ports:
-      - '${APP_PORT}:${APP_PORT}'
-    command: npm run dev
-    environment:
-      POSTGRES_HOST: host.docker.internal
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
   postgres:
     container_name: ${APP_NAME}-postgres
     image: postgres:14.3
@@ -28,12 +8,28 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     user: postgres
     ports:
-      - '${POSTGRES_PORT}:5432'
+      - "${POSTGRES_PORT}:5432"
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ['CMD', 'pg_isready']
+      test: ["CMD", "pg_isready"]
       interval: 1s
       timeout: 1s
       retries: 30
     restart: unless-stopped
+  express:
+    container_name: ${APP_NAME}-express
+    build: .
+    command: npm run dev
+    ports:
+          - "${APP_PORT}:${APP_PORT}"
+    env_file: .env
+    environment:
+      FLASK_RUN_PORT: ${APP_PORT}
+      POSTGRES_HOST: host.docker.internal
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
