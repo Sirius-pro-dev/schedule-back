@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  ts-node-docker:
+    build: .
+    volumes:
+      - ./src:/home/node/app/src
+      - ./nodemon.json:/home/node/app/nodemon.json
+    container_name: ts-node-docker
+    expose:
+      - '${APP_PORT}'
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    command: npm run dev
+    environment:
+      POSTGRES_HOST: host.docker.internal
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+  postgres:
+    container_name: ${APP_NAME}-postgres
+    image: postgres:14.3
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    user: postgres
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    restart: unless-stopped
