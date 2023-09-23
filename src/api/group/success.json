@@ -1,0 +1,12 @@
+{
+    "success": true,
+    "body": {
+        "groupId": 1,
+        "name": "группа программистов",
+        "major": "информационные технологии и программирование",
+        "course": 2,
+        "studyForm": "очная",
+        "educationLevel": "СПО"
+    },
+    "error": {}
+}

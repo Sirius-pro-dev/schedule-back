@@ -1,0 +1,8 @@
+{
+    "success": false,
+    "body": {},
+    "error": {
+        "status": 404,
+        "statusText": "Не найден"
+    }
+}

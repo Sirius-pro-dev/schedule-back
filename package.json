@@ -7,8 +7,10 @@
     "start": "NODE_PATH=./build node build/index.js",
     "build": "tsc -p .",
     "dev": "nodemon src/index.ts",
-    "compose:start": "docker-compose up --build",
-    "compose:down": "docker-compose down"
+    "deploy:stop": "docker-compose down --remove-orphans",
+    "deploy:start": "docker-compose up -d",
+    "rebuild": "npm run deploy:stop && npm run deploy:start"
+
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,7 @@
   "dependencies": {
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "mongodb": "^6.1.0",
     "mongoose": "^7.5.2",
     "pg": "^8.11.3"
   },
