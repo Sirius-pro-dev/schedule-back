@@ -1,13 +1,15 @@
-FROM node:16.17.1
+FROM node:18
 
-WORKDIR /schedule-back
+RUN mkdir -p /usr/src/app/dist/
+WORKDIR /usr/src/app/
 
-COPY package.json .
-COPY package-lock.json .
-RUN npm ci 
+COPY ./dist /usr/src/app/dist/
+COPY ./package.json /usr/src/app/package.json
+COPY ./.env /usr/src/app/.env
+COPY ./package-lock.json /usr/src/app/package-lock.json
 
-COPY . .
+RUN npm ci --omit=dev
 
-ENV NODE_PATH=./build
+EXPOSE 3001
 
-RUN npm run build
+CMD ["npm", "run", "up:prod"]
