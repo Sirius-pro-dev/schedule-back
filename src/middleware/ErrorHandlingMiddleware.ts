@@ -5,5 +5,5 @@ export const errorHandling = function (err: any, req: any, res: any, next: any) 
         return res.status(err.status).json({message: err.message});
     }
 
-    return res.status(500).json({message: 'непредвиденная ошибка('})
+    return res.status(500).json({message: 'непредвиденная ошибка'})
 }

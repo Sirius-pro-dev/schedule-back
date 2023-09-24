@@ -13,6 +13,8 @@
 
 - Система должна иметь удобный и интуитивно понятный интерфейс для всех пользователей.
 
+## [Схема БД](https://drive.google.com/file/d/1Nfd85S1qLlI8bhEc4nT-dW4yNx1XiYYH/view)
+
 ## Стек технологий Backend
 
 - [express](https://expressjs.com/ru/)

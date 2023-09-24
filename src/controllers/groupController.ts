@@ -1,6 +1,5 @@
 import ApiError from '../error/ApiError';
-const success = require('../api/group/success.json');
-const error =require('../api/group/error.json');
+import Group from '../models/group';
 
 
 
@@ -8,12 +7,14 @@ class GroupController {
     static async getAll(req: any, res: any, next: any) {
         try {
 
-            if (error.error.status === 404) {
-                next(ApiError.badRequest(error.error.statusText));
+            const response = await Group.find({});
+
+            if (response.length === 0) {
+                next(ApiError.badRequest('Не найдено'));
                 return;
             }
             
-            return res.json(success);
+            return res.status(200).json(response);
         } catch (e: any) {
             next(ApiError.badGateway(e.message))
         }
