@@ -1,8 +1,8 @@
 import Router from 'express';
-import {tableRouter} from './tableRout/index';
 import {groupRouter} from './groupRout/index';
+import {userRouter} from './userRout/index';
 
 export const router =  Router();
 
-router.use('/table', tableRouter);
 router.use('/group', groupRouter);
+router.use('/user', userRouter);

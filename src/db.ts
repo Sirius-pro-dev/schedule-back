@@ -9,7 +9,3 @@ export const disconnect = async () => {
     await mongoose.disconnect();
     console.log('mongo disconnect');
 }
-
-export const saveModel = async (model: any) => {
-    await model.save();
-}
