@@ -13,7 +13,7 @@
         "@typescript-eslint/no-explicit-any": "off",
         "max-len": [
             "error", {
-                "code": 80 
+                "code": 90
             }
         ]
     }

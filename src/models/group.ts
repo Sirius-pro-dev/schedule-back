@@ -5,7 +5,8 @@ const groupSchema = new mongoose.Schema({
     major: String,
     course: Number,
     studyForm: String,
-    educationLevel: String
+    educationLevel: String,
+    users: []
 });
 
 export default mongoose.model('Group', groupSchema);
