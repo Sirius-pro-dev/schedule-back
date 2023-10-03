@@ -1,3 +1,4 @@
+import ApiError from '../error/ApiError';
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = (req: any, res: any, next: any) => {
@@ -7,16 +8,18 @@ export const authMiddleware = (req: any, res: any, next: any) => {
 
     try {
 
-        const token = req.headers.authorization.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({message: 'Не авторизован'});
+        if (!req.headers.authorization) {
+            return next(ApiError.unauthorized(
+                'пользователь не авторизован', 
+                'userController/auth'));
         }
 
+        const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, String(process.env.SECRET_KEY));
         req.user = decoded;
-        next();
 
-    } catch (e) {
-        res.status(401).json({message: 'Не авторизован'});
+        next();
+    } catch (e: any) {
+        next(ApiError.badGateway(e.message, 'userController'))
     }
 };

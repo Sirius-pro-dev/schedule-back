@@ -3,11 +3,15 @@ import 'dotenv/config';
 import express from 'express';
 import {router} from './routes/index';
 import {errorHandling} from './middleware/ErrorHandlingMiddleware';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 
 const app = express();
 
-app.use(express.json());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use('/api', router);
+app.use(cors());
 
 app.use(errorHandling);
 

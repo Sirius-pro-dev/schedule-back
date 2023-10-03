@@ -14,51 +14,69 @@ const generateJwt = (userName: string, password: string, role: string) => {
 class UserController {
     static async registration(req: any, res: any, next: any) {
         const {userName, password, name, lastName, surName, role} = req.body;
-        if (!userName || !password) {
-            return next(ApiError.badRequest(
-                'Некорректный userName или password'
-            ));
+        try {
+            if (!userName || !password) {
+                return next(ApiError.badRequest(
+                    'Некорректный имя либо пароль',
+                    'userController/registration'
+                ));
+            }
+    
+            const candidate = await User.findOne({userName: userName});
+            if (candidate) {
+                return next(ApiError.badRequest(
+                    'Пользователь с таким именем уже существует',
+                    'userController/registration'
+                ));
+            }
+    
+            const hashPassword = await bcrypt.hash(password, 5);
+            const user = new User({
+                userName: userName,
+                password: hashPassword,
+                name: name,
+                lastName: lastName,
+                surName: surName,
+                role: role
+            });
+            await user.save();
+            const token = generateJwt(userName, password, role);
+    
+            return res.status(201).json({token}); 
+        } catch (e: any) {
+            next(ApiError.badGateway(
+                e.message, 
+                'userController/registration'))
         }
-
-        const candidate = await User.findOne({userName: userName});
-        if (candidate) {
-            return next(ApiError.badRequest(
-                'Пользователь с таким именем уже существует'
-            ));
-        }
-
-        const hashPassword = await bcrypt.hash(password, 5);
-        const user = new User({
-            userName: userName,
-            password: hashPassword,
-            name: name,
-            lastName: lastName,
-            surName: surName,
-            role: role
-        });
-        await user.save();
-        const token = generateJwt(userName, password, role);
-
-        return res.status(201).json({token}); 
     }
 
     static async login(req: any, res: any, next: any) {
         const {userName, password} = req.body;
-        const user = await User.findOne({userName: userName});
-        if (!user) {
-            return next(ApiError.badRequest('Пользователь не найден'));       
+        try {
+            const user = await User.findOne({userName: userName});
+            if (!user) {
+                return next(ApiError.notFound(
+                    'Пользователь не найден', 
+                    'userController/login'));       
+            }
+
+            const comparePassword = bcrypt.compareSync(
+                password, user.password as any
+            );
+            if (!comparePassword) {
+                return next(ApiError.badRequest(
+                    'Указан неверный пароль', 
+                    'userController/login'));        
+            }
+
+            const token = generateJwt(userName, password, user.role as any);
+
+            return res.status(200).json({token});
+        } catch (e: any) {
+            next(ApiError.badGateway(
+                e.message, 
+                'userController/login'))
         }
-
-        const comparePassword = bcrypt.compareSync(
-            password, user.password as any
-        );
-        if (!comparePassword) {
-            return next(ApiError.badRequest('Указан неверный пароль'));        
-        }
-
-        const token = generateJwt(userName, password, user.role as any);
-
-        return res.status(200).json({token});
     }
 
     static async check(req: any, res: any) {
