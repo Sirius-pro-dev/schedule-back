@@ -10,7 +10,8 @@
     "deploy:stop": "docker-compose down --remove-orphans",
     "deploy:start": "docker-compose up -d",
     "rebuild": "npm run deploy:stop && npm run deploy:start",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "repository": {
     "type": "git",
@@ -46,6 +47,7 @@
     "@typescript-eslint/parser": "^6.7.2",
     "eslint": "^8.50.0",
     "nodemon": "^3.0.1",
+    "prettier": "3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }
