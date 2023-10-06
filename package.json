@@ -11,6 +11,7 @@
     "deploy:start": "docker-compose up -d",
     "rebuild": "npm run deploy:stop && npm run deploy:start",
     "lint": "eslint . --ext .ts",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "test": "jest"
   },
   "repository": {
@@ -49,6 +50,7 @@
     "eslint": "^8.50.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
+    "prettier": "3.0.3",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",

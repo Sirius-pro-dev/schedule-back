@@ -1,34 +1,34 @@
 {
-    "0": {
-        "date": "2023-09-03",
-        "time": "11-30",
-        "discipline_name": "Питон разработка",
-        "class_type": "Лекция",
-        "teacher": {
-            "user_id": "234234234234",
-            "name": "Альберт"
-        },
-        "location_address": "Лицей",
-        "classroom": "345",
-        "group": {
-            "group_id": "34234234234",
-            "name": "Название группы"
-        }
+  "0": {
+    "date": "2023-09-03",
+    "time": "11-30",
+    "discipline_name": "Питон разработка",
+    "class_type": "Лекция",
+    "teacher": {
+      "user_id": "234234234234",
+      "name": "Альберт"
     },
-    "2": {
-        "date": "2023-09-03",
-        "time": "12-30",
-        "discipline_name": "Питон разработка",
-        "class_type": "Практика",
-        "teacher": {
-            "user_id": "234234234234",
-            "name": "Альберт"
-        },
-        "location_address": "Лицей",
-        "classroom": "345",
-        "group": {
-            "group_id": "34234234234",
-            "name": "Название группы"
-        }
+    "location_address": "Лицей",
+    "classroom": "345",
+    "group": {
+      "group_id": "34234234234",
+      "name": "Название группы"
     }
+  },
+  "2": {
+    "date": "2023-09-03",
+    "time": "12-30",
+    "discipline_name": "Питон разработка",
+    "class_type": "Практика",
+    "teacher": {
+      "user_id": "234234234234",
+      "name": "Альберт"
+    },
+    "location_address": "Лицей",
+    "classroom": "345",
+    "group": {
+      "group_id": "34234234234",
+      "name": "Название группы"
+    }
+  }
 }
