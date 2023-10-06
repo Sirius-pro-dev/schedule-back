@@ -6,7 +6,7 @@ const groupSchema = new mongoose.Schema({
   course: Number,
   studyForm: String,
   educationLevel: String,
-  users: []
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 export default mongoose.model('Group', groupSchema);

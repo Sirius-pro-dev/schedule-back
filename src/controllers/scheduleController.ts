@@ -1,15 +1,28 @@
+import Schedule from '../models/schedule';
+import User from '../models/user';
+import Group from '../models/group';
 import ApiError from '../error/ApiError';
-const getStudentScheduleAll = require('../api/schedules/getStudentScheduleAll.json');
-const getStudentScheduleOne = require('../api/schedules/getStudentScheduleOne.json');
+import { convertResponse } from '../utils/index';
 
 class ScheduleController {
   static async getAll(req: any, res: any, next: any) {
     try {
-      // if (response.length === 0) {
-      //     next(ApiError.badRequest('id расписания не найдено либо не существует'));
-      //     return;
-      // }
-      return res.status(200).json(getStudentScheduleAll);
+      const resultData = await Schedule.find({});
+
+      if (resultData.length === 0) {
+        next(
+          ApiError.notFound(
+            'расписания не найдено либо не существует',
+            'scheduleController/getOne'
+          )
+        );
+
+        return;
+      }
+
+      const response = await convertResponse(resultData);
+
+      return res.status(200).json(response);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'scheduleController/getAll'));
     }
@@ -17,19 +30,28 @@ class ScheduleController {
 
   static async getOne(req: any, res: any, next: any) {
     try {
-      const { id } = req.query;
+      const { id } = req.params;
 
       if (!id) {
         next(ApiError.badRequest('Не указан id расписания', 'scheduleController/getOne'));
         return;
       }
 
-      // if (response.length === 0) {
-      //     next(ApiError.notFound('id расписания не найдено либо не существует'));
-      //     return;
-      // }
+      const resultData = await Schedule.findOne({ _id: id });
 
-      return res.status(200).json(getStudentScheduleOne);
+      if (!resultData) {
+        next(
+          ApiError.notFound(
+            'расписания не найдено либо не существует',
+            'scheduleController/getOne'
+          )
+        );
+        return;
+      }
+
+      const response = await convertResponse(resultData);
+
+      return res.status(200).json(response);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'scheduleController/getOne'));
     }
@@ -37,22 +59,10 @@ class ScheduleController {
 
   static async createSchedule(req: any, res: any, next: any) {
     try {
-      const {
-        date,
-        time,
-        disciplineName,
-        classType,
-        users,
-        group,
-        locationAddress,
-        classRoom
-      } = req.body;
-      const userMockId = '211112';
-      let flagUser = false;
+      const { disciplineName, classType, users, group, locationAddress, classRoom } =
+        req.body;
 
       if (
-        !date ||
-        !time ||
         !disciplineName ||
         !classType ||
         !users ||
@@ -66,25 +76,45 @@ class ScheduleController {
         return;
       }
 
-      users.forEach((user: any) => {
-        if (user.userId !== userMockId) {
-          flagUser = true;
-        }
-      });
-
-      // if (group.length === 0) {
-      //     next(ApiError.notFound('Не найдена группа'));
-      //     return;
-      // }
-
-      if (flagUser) {
+      const userData = await User.find({ _id: { $in: users } });
+      if (userData.length !== users.length) {
         next(
           ApiError.notFound('Не найден пользователь', 'scheduleController/createSchedule')
         );
         return;
       }
 
-      return res.status(201).json(getStudentScheduleOne);
+      const groupData = await Group.findOne({ name: group });
+      if (!groupData) {
+        next(ApiError.notFound('Не найдена группа', 'scheduleController/createSchedule'));
+        return;
+      }
+
+      const date = new Date();
+      const time = new Date();
+
+      const resultData = await Schedule.create({
+        date: date,
+        time: time,
+        disciplineName: disciplineName,
+        classType: classType,
+        users: userData,
+        group: groupData,
+        locationAddress: locationAddress,
+        classRoom: classRoom
+      });
+
+      if (!resultData) {
+        next(
+          ApiError.notFound(
+            'расписание не создалось',
+            'scheduleController/createSchedule'
+          )
+        );
+        return;
+      }
+
+      return res.status(201).json(resultData);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'scheduleController/createSchedule'));
     }
@@ -104,12 +134,19 @@ class ScheduleController {
         return;
       }
 
-      // if (response.length === 0) {
-      //     next(ApiError.notFound('id расписания не найдено либо не существует'));
-      //     return;
-      // }
+      const resultData = await Schedule.findOneAndDelete({ _id: id });
 
-      return res.status(200).json({ id: id });
+      if (!resultData) {
+        next(
+          ApiError.notFound(
+            'расписание не удалилось, произошла ошибка. Проверте правильность написания идетификатора',
+            'scheduleController/deleteSchedule'
+          )
+        );
+        return;
+      }
+
+      return res.status(200).json(resultData);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'scheduleController/deleteSchedule'));
     }

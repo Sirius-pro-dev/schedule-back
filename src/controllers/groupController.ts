@@ -1,20 +1,21 @@
 import ApiError from '../error/ApiError';
 import Group from '../models/group';
-
-const getGroup = require('../api/groups/getGroup.json');
-const getAllGroup = require('../api/groups/getAllGroup.json');
+import User from '../models/user';
+import { convertResponse } from '../utils/index';
 
 class GroupController {
   static async getAll(req: any, res: any, next: any) {
     try {
-      const response = await Group.find({});
+      const groups: any = await Group.find({});
 
-      if (response.length === 0) {
+      if (!groups) {
         next(ApiError.notFound('Не найдены группы', 'groupContoller/getAll'));
         return;
       }
 
-      res.status(200).json(getAllGroup);
+      const response = await convertResponse(groups);
+
+      res.status(200).json(response);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'groupContoller/getAll'));
     }
@@ -22,7 +23,7 @@ class GroupController {
 
   static async getOne(req: any, res: any, next: any) {
     try {
-      const { name } = req.query;
+      const { name } = req.params;
 
       if (!name) {
         next(
@@ -31,15 +32,26 @@ class GroupController {
             'groupContoller/getOne'
           )
         );
+
         return;
       }
 
-      // if (response.length === 0) {
-      //     next(ApiError.notFound('Название группы не найдена либо не существует'));
-      //     return;
-      // }
+      const group: any = await Group.findOne({ name: name });
 
-      res.status(200).json(getGroup);
+      if (!group) {
+        next(
+          ApiError.notFound(
+            'Название группы не найдена либо не существует',
+            'groupContoller/getOne'
+          )
+        );
+
+        return;
+      }
+
+      const response = await convertResponse(group);
+
+      res.status(200).json(response);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'groupContoller/getOne'));
     }
@@ -48,26 +60,28 @@ class GroupController {
   static async createGroup(req: any, res: any, next: any) {
     try {
       const { name, major, course, studyForm, educationLevel, users } = req.body;
-      const userMockId = '211112';
-      let flagUser = false;
 
       if (!name || !major || !course || !studyForm || !educationLevel || !users) {
         next(ApiError.badRequest('Указаны не все поля', 'groupContoller/createGroup'));
         return;
       }
 
-      users.forEach((user: any) => {
-        if (user.userId !== userMockId) {
-          flagUser = true;
-        }
-      });
-
-      if (flagUser) {
-        next(ApiError.notFound('Не найден юзер', 'groupContoller/createGroup'));
+      const userData = await User.find({ _id: { $in: users } });
+      if (userData.length !== users.length) {
+        next(ApiError.notFound('Не найден пользователь', 'groupContoller/createGroup'));
         return;
       }
 
-      return res.status(201).json(getGroup);
+      const group = await Group.create({
+        name: name,
+        major: major,
+        course: course,
+        studyForm: studyForm,
+        educationLevel: educationLevel,
+        users: userData
+      });
+
+      return res.status(201).json(group);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'groupContoller/createGroup'));
     }
@@ -87,12 +101,19 @@ class GroupController {
         return;
       }
 
-      // if (response.length === 0) {
-      //     next(ApiError.notFound('Название группы не найдена либо не существует'));
-      //     return;
-      // }
+      const resultData = await Group.findOneAndDelete({ name: name });
 
-      return res.status(200).json({ name: name });
+      if (!resultData) {
+        next(
+          ApiError.notFound(
+            'Группа не удалилась, произошла ошибка',
+            'groupContoller/deleteGroup'
+          )
+        );
+        return;
+      }
+
+      return res.status(200).json(resultData);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'groupContoller/deleteGroup'));
     }
