@@ -6,4 +6,4 @@ export const groupRouter = Router();
 groupRouter.get('/', groupController.getAll);
 groupRouter.get('/:name', groupController.getOne);
 groupRouter.post('/create', groupController.createGroup);
-groupRouter.post('/delete', groupController.deleteGroup);
+groupRouter.delete('/delete', groupController.deleteGroup);
