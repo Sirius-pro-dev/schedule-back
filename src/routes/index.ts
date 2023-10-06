@@ -1,7 +1,7 @@
 import Router from 'express';
 import { groupRouter } from './groupRout';
 import { userRouter } from './userRout';
-import { scheduleRouter } from './scheduleRout';
+import { scheduleRouter } from './scheduleRout/index';
 
 export const router = Router();
 
