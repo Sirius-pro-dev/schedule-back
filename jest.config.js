@@ -6,7 +6,7 @@
 /** @type {import('jest').Config} */
 const config = {
   // All imported modules in your tests should be mocked automatically
-  // automock: false,
+  // automock: true,
 
   // Stop running tests after `n` failures
   // bail: 0,
@@ -23,8 +23,8 @@ const config = {
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: [
     "**/src/**/*.ts",
-    "**/src/**/db.ts",
-    "**/src/**/index.ts"
+    "!**/src/db.ts",
+    "!**/src/index.ts"
   ],
 
   // The directory where Jest should output its coverage files

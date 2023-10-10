@@ -6,7 +6,7 @@ import { errorHandling } from './middleware/ErrorHandlingMiddleware';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
-const app = express();
+export const app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -25,7 +25,5 @@ const start = async () => {
     console.log(e);
   }
 };
-
-module.exports = app;
 
 start();
