@@ -24,7 +24,8 @@ const config = {
   collectCoverageFrom: [
     "**/src/**/*.ts",
     "!**/src/db.ts",
-    "!**/src/index.ts"
+    "!**/src/index.ts",
+    "!**/dist/**",
   ],
 
   // The directory where Jest should output its coverage files
@@ -96,7 +97,7 @@ const config = {
   // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-  // modulePathIgnorePatterns: [],
+  modulePathIgnorePatterns: ["<rootDir>/dist/"],
 
   // Activates notifications for test results
   // notify: false,

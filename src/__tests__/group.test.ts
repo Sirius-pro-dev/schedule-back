@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import { app } from '../index';
 import Group from '../models/group';
 import { testGroups } from '../__mocks__/group/groups';
+import ApiError from '../error/ApiError';
 
 const baseUrl = '/api/group';
 
@@ -42,7 +43,6 @@ describe('groups', () => {
     });
   });
 
-
   describe('GET /api/group/:name', () => {
     const groupName = testGroups[0].name;
     it('should get a group by name', async () => {
@@ -54,16 +54,14 @@ describe('groups', () => {
       expect(response.body).toEqual(testGroups);
     });
 
-    // it('should return a 400 error if name is missing', async () => {
-    //   jest.spyOn(Group, 'findOne').mockResolvedValue(testGroups);
-    //   // const response = await supertest(app).get(baseUrl);
-    //   const response = await supertest(app)
-    //       .get(`${baseUrl}/`)
-    //       .query({});
-    //
-    //   expect(response.status).toBe(400);
-    //   expect(response.body.error.title).toBe('badRequest');
-    // });
+    it('should return a 400 error if name is missing', async () => {
+      // jest.spyOn(Group, 'findOne').mockResolvedValue(testGroups);
+      // const response = await supertest(app).get(baseUrl);
+      const response = await supertest(app).get(`${baseUrl}/`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.title).toBe('badRequest');
+    });
 
     it('should return a 404 error if group is not found', async () => {
       jest.spyOn(mockedGroup, 'findOne').mockResolvedValue(null);
@@ -87,37 +85,33 @@ describe('groups', () => {
 
   describe('POST /api/group/create', () => {
     it('should create a group when all required fields are provided', async () => {
-
       const testData = {
         name: 'Test Group',
         major: 'Computer Science',
         course: 1,
         studyForm: 'Full-time',
         educationLevel: 'Bachelor',
-        users: [],
+        users: []
       };
 
       // @ts-ignore
       jest.spyOn(mockedGroup, 'create').mockResolvedValue(testData);
 
-      const response = await supertest(app)
-          .post(`${baseUrl}/create`)
-          .send(testData);
+      const response = await supertest(app).post(`${baseUrl}/create`).send(testData);
 
       expect(response.status).toBe(201);
       expect(response.body.name).toBe(testData.name);
-
     });
 
     it('should return a bad request if not all required fields are provided', async () => {
       const incompleteData = {
         name: 'Incomplete Group',
-        major: 'Computer Science',
+        major: 'Computer Science'
       };
 
       const response = await supertest(app)
-          .post(`${baseUrl}/create`)
-          .send(incompleteData);
+        .post(`${baseUrl}/create`)
+        .send(incompleteData);
 
       expect(response.status).toBe(400);
       expect(response.body.error.title).toBe('badRequest');
@@ -131,12 +125,12 @@ describe('groups', () => {
         course: 1,
         studyForm: 'Full-time',
         educationLevel: 'Bachelor',
-        users: [{'_id': '6520533a03eb70598ff0ff93'}]
+        users: [{ _id: '6520533a03eb70598ff0ff93' }]
       };
 
       const response = await supertest(app)
-          .post(`${baseUrl}/create`)
-          .send(testDataWithInvalidUser);
+        .post(`${baseUrl}/create`)
+        .send(testDataWithInvalidUser);
 
       expect(response.status).toBe(404);
       expect(response.body.error.title).toBe('notFound');
@@ -152,19 +146,16 @@ describe('groups', () => {
         course: 1,
         studyForm: 'Full-time',
         educationLevel: 'Bachelor',
-        users: ['user1_id', 'user2_id'],
+        users: ['user1_id', 'user2_id']
       };
 
-      const response = await supertest(app)
-          .post(`${baseUrl}/create`)
-          .send(testData);
+      const response = await supertest(app).post(`${baseUrl}/create`).send(testData);
 
       expect(response.status).toBe(503);
     });
   });
 
   describe('DELETE /api/group/delete', () => {
-
     it('should delete a group when name is provided', async () => {
       const testData = {
         name: 'Test Group',
@@ -172,34 +163,34 @@ describe('groups', () => {
         course: 1,
         studyForm: 'Full-time',
         educationLevel: 'Bachelor',
-        users: [],
+        users: []
       };
 
       jest.spyOn(mockedGroup, 'findOneAndDelete').mockResolvedValue(testData);
 
       const response = await supertest(app)
-          .delete(`${baseUrl}/delete`)
-          .send({ name: 'Test Group' });
+        .delete(`${baseUrl}/delete`)
+        .send({ name: 'Test Group' });
 
       expect(response.status).toBe(200);
       expect(response.body.name).toBe('Test Group');
     });
 
     it('should return a 400 error if name is missing', async () => {
-      const response = await supertest(app)
-          .delete(`${baseUrl}/delete`)
-          .send({});
+      const response = await supertest(app).delete(`${baseUrl}/delete`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.error.title).toBe('badRequest');
-      expect(response.body.error.detail).toBe('Не указано обязательное поле название группы');
+      expect(response.body.error.detail).toBe(
+        'Не указано обязательное поле название группы'
+      );
     });
 
     it('should return a 404 error if group is not found', async () => {
       jest.spyOn(mockedGroup, 'findOneAndDelete').mockResolvedValue(null);
       const response = await supertest(app)
-          .delete(`${baseUrl}/delete`)
-          .send({ name: 'Nonexistent Group' });
+        .delete(`${baseUrl}/delete`)
+        .send({ name: 'Nonexistent Group' });
 
       expect(response.status).toBe(404);
       expect(response.body.error.title).toBe('notFound');
@@ -207,13 +198,15 @@ describe('groups', () => {
     });
 
     it('should return a 503 error', async () => {
-      jest.spyOn(mockedGroup, 'findOneAndDelete').mockRejectedValue(new Error('Test error'));
+      jest
+        .spyOn(mockedGroup, 'findOneAndDelete')
+        .mockRejectedValue(new ApiError(503, 'badGateway', 'groupContoller/deleteGroup'));
       const response = await supertest(app)
-          .delete(`${baseUrl}/delete`)
-          .send({ name: 'Nonexistent Group' });
+        .delete(`${baseUrl}/delete`)
+        .send({ name: 'Nonexistent Group' });
 
       expect(response.status).toBe(503);
       expect(response.body.error.title).toBe('badGateway');
     });
-  })
+  });
 });

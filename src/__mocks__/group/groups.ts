@@ -5,6 +5,6 @@ export const testGroups = [
     course: 2,
     studyForm: 'Очная',
     educationLevel: 'СПО',
-    users: [],
+    users: []
   }
 ];

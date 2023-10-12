@@ -1,10 +1,10 @@
 import User from '../models/user';
 import Group from '../models/group';
-const getUsersData = async (usersArray: any) => {
+export const getUsersData = async (usersArray: any) => {
   return await User.find({ _id: { $in: usersArray } });
 };
 
-const getGroupData = async (groupId: any) => {
+export const getGroupData = async (groupId: any) => {
   return await Group.findOne({ _id: groupId });
 };
 

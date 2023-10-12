@@ -38,7 +38,6 @@ class ScheduleController {
       }
 
       const resultData = await Schedule.findOne({ _id: id });
-
       if (!resultData) {
         next(
           ApiError.notFound(
@@ -139,7 +138,7 @@ class ScheduleController {
       if (!resultData) {
         next(
           ApiError.notFound(
-            'расписание не удалилось, произошла ошибка. Проверте правильность написания идетификатора',
+            'расписание не удалилось, произошла ошибка. Проверте правильность написания идентификатора',
             'scheduleController/deleteSchedule'
           )
         );

@@ -10,7 +10,9 @@ export const connect = async () => {
         : ''
     }`
   );
-  console.log('mongo connect');
+  if (process.env.NODE_ENV !== 'test') {
+    console.log('mongo connect');
+  }
 };
 
 export const disconnect = async () => {

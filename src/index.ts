@@ -20,7 +20,9 @@ const PORT = process.env.APP_PORT || 5000;
 const start = async () => {
   try {
     connect();
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    if (process.env.NODE_ENV !== 'test') {
+      app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    }
   } catch (e) {
     console.log(e);
   }

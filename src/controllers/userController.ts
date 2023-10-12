@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
 
-const generateJwt = (userName: string, password: string, role: string) => {
+export const generateJwt = (userName: string, password: string, role: string) => {
   return jwt.sign({ userName, password, role }, String(process.env.SECRET_KEY), {
     expiresIn: '24h'
   });
