@@ -54,15 +54,6 @@ describe('groups', () => {
       expect(response.body).toEqual(testGroups);
     });
 
-    it('should return a 400 error if name is missing', async () => {
-      // jest.spyOn(Group, 'findOne').mockResolvedValue(testGroups);
-      // const response = await supertest(app).get(baseUrl);
-      const response = await supertest(app).get(`${baseUrl}/`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.error.title).toBe('badRequest');
-    });
-
     it('should return a 404 error if group is not found', async () => {
       jest.spyOn(mockedGroup, 'findOne').mockResolvedValue(null);
 

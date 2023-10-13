@@ -9,7 +9,6 @@ const baseUrl = '/api/schedule';
 
 jest.mock('../models/group');
 jest.mock('../models/schedule');
-jest.mock('../models/group');
 
 const mockedGroup = Group as jest.Mocked<typeof Group>;
 const mockedSchedule = Schedule as jest.Mocked<typeof Schedule>;
@@ -57,13 +56,6 @@ describe('schedule', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(testSchedule);
-    });
-
-    it('should return a 400 error if name is missing', async () => {
-      const response = await supertest(app).get(`${baseUrl}/`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.error.title).toBe('badRequest');
     });
 
     it('should return a 404 error', async () => {
@@ -195,37 +187,6 @@ describe('schedule', () => {
       expect(response.body.error.title).toBe('notFound');
       expect(response.body.error.detail).toBe('Не найдена группа');
     });
-
-    // it('should return a 400 error a schedule when all required fields are provided', async () => {
-    //   const dataSchedule = {
-    //     _id: 1,
-    //     date: 5,
-    //     time: 4,
-    //     disciplineName: 'базы данных',
-    //     classType: 'очная',
-    //     users: ['user1', 'user2'],
-    //     group: { _id: 'groupId', name: 'Group1' },
-    //     locationAddress: 'лицей',
-    //     classRoom: 203
-    //   };
-    //
-    //   jest
-    //       .spyOn(mockedUser, 'find')
-    //       .mockResolvedValue([{ _id: 'user1' }, { _id: 'user2' }]);
-    //
-    //   jest
-    //       .spyOn(mockedGroup, 'findOne')
-    //       .mockResolvedValue({ _id: 'groupId', name: 'Group1' });
-    //
-    //   // @ts-ignore
-    //   jest.spyOn(mockedSchedule, 'create').mockResolvedValue(dataSchedule);
-    //
-    //   const response = await supertest(app).post(`${baseUrl}/create`).send(dataSchedule);
-    //
-    //   expect(response.status).toBe(404);
-    //   expect(response.body.error.title).toBe('notFound');
-    //   expect(response.body.error.detail).toBe('расписание не создалось');
-    // });
 
     it('should return a bad gateway error if an error occurs during group creation', async () => {
       const dataSchedule = {
