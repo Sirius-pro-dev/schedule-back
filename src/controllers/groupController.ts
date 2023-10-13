@@ -1,7 +1,7 @@
 import ApiError from '../error/ApiError';
 import Group from '../models/group';
 import User from '../models/user';
-import { convertResponse } from '../utils/index';
+import { convertResponse } from '../utils';
 
 class GroupController {
   static async getAll(req: any, res: any, next: any) {

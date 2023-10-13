@@ -6,7 +6,7 @@ import { errorHandling } from './middleware/ErrorHandlingMiddleware';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
-const app = express();
+export const app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -20,7 +20,9 @@ const PORT = process.env.SIRIUS_X_SCHEDULE_PORT || 3007;
 const start = async () => {
   try {
     connect();
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    if (process.env.NODE_ENV !== 'test') {
+      app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    }
   } catch (e) {
     console.log(e);
   }
