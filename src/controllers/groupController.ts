@@ -8,7 +8,7 @@ class GroupController {
     try {
       const groups: any = await Group.find({});
 
-      if (!groups) {
+      if (groups.length === 0) {
         next(ApiError.notFound('Не найдены группы', 'groupContoller/getAll'));
         return;
       }
