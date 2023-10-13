@@ -15,7 +15,7 @@ app.use(cors());
 
 app.use(errorHandling);
 
-const PORT = process.env.APP_PORT || 5000;
+const PORT = process.env.SIRIUS_X_SCHEDULE_PORT || 3007;
 
 const start = async () => {
   try {
