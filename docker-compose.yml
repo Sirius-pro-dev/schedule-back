@@ -1,9 +1,28 @@
 version: "3.5"
 services:
+  sirius-mongo:
+    image: mongo:4.4.23
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test
+    ports:
+      - "27017:27017"
+    volumes:
+      - sirius_volume:/data/db
+
   sirius-server:
     build: .
     restart: always
     ports:
-      - 3001:3001
+      - 3007:3007
     environment:
-      - TZ=Europe/Moscow
+      TZ: Europe/Moscow
+      SIRIUS_X_MONGO_USERNAME: test
+      SIRIUS_X_MONGO_PASSWORD: test
+      SIRIUS_X_DB: sirius-mongo
+      SIRIUS_X_MONGO_AUTHSOURCE:
+      SIRIUS_X_SCHEDULE_PORT: 3007
+      SECRET_KEY: random_secret_key123
+
+volumes:
+  sirius_volume:
