@@ -133,11 +133,11 @@ describe('groups', () => {
 
       const testData = {
         name: 'Error Group',
-        major: 'Computer Science',
+        major: 12341234,
         course: 1,
         studyForm: 'Full-time',
         educationLevel: 'Bachelor',
-        users: ['user1_id', 'user2_id']
+        users: []
       };
 
       const response = await supertest(app).post(`${baseUrl}/create`).send(testData);
