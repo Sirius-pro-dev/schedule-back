@@ -66,7 +66,7 @@ class GroupController {
         return;
       }
 
-      const userData = await User.find({ _id: { $in: users } });
+      const userData = await User.find({ userName: { $in: users } });
       if (userData.length !== users.length) {
         next(ApiError.notFound('Не найден пользователь', 'groupContoller/createGroup'));
         return;
