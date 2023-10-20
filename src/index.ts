@@ -19,7 +19,7 @@ const PORT = process.env.SIRIUS_X_SCHEDULE_PORT || 3007;
 
 const start = async () => {
   try {
-    // connect();
+    connect();
     if (process.env.NODE_ENV !== 'test') {
       app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
     }
