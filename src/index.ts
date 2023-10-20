@@ -8,10 +8,10 @@ import cors from 'cors';
 
 export const app = express();
 
+app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api', router);
-app.use(cors());
 
 app.use(errorHandling);
 
@@ -19,7 +19,7 @@ const PORT = process.env.SIRIUS_X_SCHEDULE_PORT || 3007;
 
 const start = async () => {
   try {
-    connect();
+    // connect();
     if (process.env.NODE_ENV !== 'test') {
       app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
     }
