@@ -28,6 +28,36 @@ class ScheduleController {
     }
   }
 
+  static async getWeek(req: any, res: any, next: any) {
+    try {
+      const currentDate = new Date();
+      const currentDayOfWeek = currentDate.getDay();
+
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate((currentDate.getDate()) - currentDayOfWeek);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+      const getWeekResult = await Schedule.find({date: { $gte: startOfWeek, $lte: endOfWeek }})
+
+      if (getWeekResult.length === 0) {
+        next(
+          ApiError.notFound(
+            'расписания не найдено либо не существует',
+            'scheduleController/getWeek'
+          )
+        );
+        return;
+      }
+
+      const response = await convertResponse(getWeekResult);
+      return res.status(200).json(response);
+    } catch (e: any) {
+      next(ApiError.badGateway(e.message, 'scheduleController/getWeek'));
+    }
+  }
+
   static async getOne(req: any, res: any, next: any) {
     try {
       const { id } = req.params;
