@@ -2,7 +2,7 @@ import Schedule from '../models/schedule';
 import User from '../models/user';
 import Group from '../models/group';
 import ApiError from '../error/ApiError';
-import { convertResponse } from '../utils/index';
+import { convertResponse, isValidDate, isValidTimeRange} from '../utils/index';
 
 class ScheduleController {
   static async getAll(req: any, res: any, next: any) {
@@ -88,12 +88,15 @@ class ScheduleController {
 
   static async createSchedule(req: any, res: any, next: any) {
     try {
-      const { disciplineName, classType, users, group, locationAddress, classRoom } =
+      const { date, time, disciplineName, classType, teacher, users, group, locationAddress, classRoom } =
         req.body;
 
       if (
+        !date ||
+        !time ||
         !disciplineName ||
         !classType ||
+        !teacher ||
         !users ||
         !group ||
         !locationAddress ||
@@ -101,6 +104,14 @@ class ScheduleController {
       ) {
         next(
           ApiError.badRequest('Указаны не все поля', 'scheduleController/createSchedule')
+        );
+        return;
+      }
+
+      const teacherData = await User.findOne({ userName: { $in: teacher }, role: { $in: "преподаватель" }});
+      if (!teacherData) {
+        next(
+          ApiError.notFound('Не найден преподователь', 'scheduleController/createSchedule')
         );
         return;
       }
@@ -119,14 +130,20 @@ class ScheduleController {
         return;
       }
 
-      const date = new Date();
-      const time = new Date();
+      if (!isValidDate(date)) {
+        next(ApiError.badRequest('Дата не соответсвует формату "yyyy-mm-dd"', 'scheduleController/createSchedule'));
+      }
+
+      if (!isValidTimeRange(time)) {
+        next(ApiError.badRequest('Время не соответсвует формату "hh:mm-hh:mm" с обязательным диапозоном в 1ч 30мин', 'scheduleController/createSchedule'));
+      }
 
       const resultData = await Schedule.create({
         date: date,
         time: time,
         disciplineName: disciplineName,
         classType: classType,
+        teacher: teacherData,
         users: userData,
         group: groupData,
         locationAddress: locationAddress,

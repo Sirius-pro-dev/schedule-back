@@ -5,6 +5,7 @@ const scheduleSchema = new mongoose.Schema({
   time: String,
   disciplineName: String,
   classType: String,
+  teacher: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   group: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   locationAddress: String,
