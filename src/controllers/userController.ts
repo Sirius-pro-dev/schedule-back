@@ -2,6 +2,7 @@ import ApiError from '../error/ApiError';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
+import Group from '../models/group';
 
 export const generateJwt = (userName: string, password: string, role: string) => {
   return jwt.sign({ userName, password, role }, String(process.env.SECRET_KEY), {
@@ -50,20 +51,29 @@ class UserController {
     }
   }
 
-  static async getAllUsers(req: any, res: any, next: any) {
+  static async getTeacherOrGroup (req: any, res: any, next: any) {
     try {
-      const { role } = req.query;
-      if (role !== 'преподаватель' && role !== 'ученик') {
-        return next(ApiError.badRequest('Указана несуществующая роль', 'userController/getAllUsers'));
+      const { tab } = req.query;
+      if (tab !== 'преподаватель' && tab !== 'группа') {
+        return next(ApiError.badRequest('Указаны не существующие типы', 'userController/getTeacherOrGroup'));
       }
-      const users = await User.find({ role: role });
-      if (users.length === 0) {
-        return next(ApiError.notFound('Пользователи не найдены', 'userController/getAllUsers'));
+
+      switch (tab) {
+        case 'преподаватель': 
+          const users = await User.find({ role: tab });
+          if (users.length === 0) {
+            return next(ApiError.notFound('Пользователи не найдены', 'userController/getTeacherOrGroup'));
+          }
+          return res.status(200).json(users);
+        case 'группа':
+          const group = await Group.find({});
+          if (group.length === 0) {
+            return next(ApiError.notFound('Группы не найдены', 'userController/getTeacherOrGroup'));
+          }
+          return res.status(200).json(group);
       }
-      
-      return res.status(200).json(users);
     } catch (e: any) {
-      next(ApiError.badGateway(e.message, 'userController/getAllUsers'));
+      next(ApiError.badGateway(e.message, 'userController/getTeacherOrGroup'));
     }
   }
 
