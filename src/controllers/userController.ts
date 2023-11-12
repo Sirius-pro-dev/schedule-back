@@ -50,6 +50,23 @@ class UserController {
     }
   }
 
+  static async getAllUsers(req: any, res: any, next: any) {
+    try {
+      const { role } = req.query;
+      if (role !== 'преподаватель' && role !== 'ученик') {
+        return next(ApiError.badRequest('Указана несуществующая роль', 'userController/getAllUsers'));
+      }
+      const users = await User.find({ role: role });
+      if (users.length === 0) {
+        return next(ApiError.notFound('Пользователи не найдены', 'userController/getAllUsers'));
+      }
+      
+      return res.status(200).json(users);
+    } catch (e: any) {
+      next(ApiError.badGateway(e.message, 'userController/getAllUsers'));
+    }
+  }
+
   static async login(req: any, res: any, next: any) {
     const { userName, password } = req.body;
     try {
