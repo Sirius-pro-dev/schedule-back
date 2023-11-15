@@ -2,7 +2,7 @@ import Schedule from '../models/schedule';
 import User from '../models/user';
 import Group from '../models/group';
 import ApiError from '../error/ApiError';
-import { convertResponse, isValidDate, isValidTimeRange} from '../utils/index';
+import { convertResponse, formatTeacherName, getDayName, getWeekRange, isValidDate, isValidTimeRange} from '../utils/index';
 
 class ScheduleController {
   static async getAll(req: any, res: any, next: any) {
@@ -30,16 +30,13 @@ class ScheduleController {
 
   static async getWeek(req: any, res: any, next: any) {
     try {
-      const currentDate = new Date();
-      const currentDayOfWeek = currentDate.getDay();
+      const { week } = req.params;
 
-      const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate((currentDate.getDate()) - currentDayOfWeek);
+      const { startDate, endDate, currentYear, currentMonth } = getWeekRange(parseInt(week, 10));
 
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-      const getWeekResult = await Schedule.find({date: { $gte: startOfWeek, $lte: endOfWeek }})
+      const getWeekResult = await Schedule.find({
+          date: { $gte: startDate, $lte: endDate }
+      });
 
       if (getWeekResult.length === 0) {
         next(
@@ -51,7 +48,47 @@ class ScheduleController {
         return;
       }
 
-      const response = await convertResponse(getWeekResult);
+      const convertData = await convertResponse(getWeekResult);
+
+      const response: any = {
+        weekData: {
+            month: currentMonth,
+            year: currentYear,
+            week: week
+        },
+    };
+
+    convertData.forEach((schedule: any) => {
+        const dayOfWeek = schedule.date.getDay();
+
+        if (!response[dayOfWeek]) {
+            response[dayOfWeek] = {
+                date: schedule.date.getDate().toString(),
+                day: getDayName(dayOfWeek),
+                lessons: []
+            };
+        }
+
+        response[dayOfWeek].lessons.push({
+            time: schedule.time,
+            name: schedule.disciplineName,
+            classType: schedule.classType,
+            placeActivity: schedule.locationAddress,
+            teacher: formatTeacherName(schedule.users[0])
+        });
+    });
+
+    Object.values(response).forEach((day: any) => {
+      if (!day.date) {
+        return;
+      }
+      day.lessons.sort((a: any, b: any) => {
+          const timeA: any = a.time.split(":")[0];
+          const timeB: any = b.time.split(":")[0];
+          return timeA - timeB;
+      });
+    });
+
       return res.status(200).json(response);
     } catch (e: any) {
       next(ApiError.badGateway(e.message, 'scheduleController/getWeek'));
