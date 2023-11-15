@@ -74,3 +74,25 @@ export const isValidDate = (date: string) => {
 
   return true;
 }
+
+export const getWeekRange = (week: number) => {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().toLocaleString('ru-RU', { month: 'long' });
+  const firstDayOfYear = new Date(currentYear, 0, 1); 
+  const daysToFirstSunday = 0 - firstDayOfYear.getDay(); 
+
+  const startDate = new Date(currentYear, 0, 2 + daysToFirstSunday + (week - 1) * 7);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+
+  return { startDate, endDate, currentYear: currentYear.toString(), currentMonth };
+}
+
+export const getDayName = (dayOfWeek: any) => {
+  const daysOfWeek = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+  return daysOfWeek[dayOfWeek];
+}
+
+export const formatTeacherName = (user: any) => {
+  return `${user.name} ${user.surName} ${user.lastName}`;
+}
