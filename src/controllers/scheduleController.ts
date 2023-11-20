@@ -2,7 +2,7 @@ import Schedule from '../models/schedule';
 import User from '../models/user';
 import Group from '../models/group';
 import ApiError from '../error/ApiError';
-import { convertResponse, formatTeacherName, getDayName, getWeekRange, isValidDate, isValidTimeRange} from '../utils/index';
+import { convertResponse, formatTeacherName, getDayName, getWeekRange, isValidDate, isValidTimeRange} from '../utils';
 
 class ScheduleController {
   static async getAll(req: any, res: any, next: any) {
@@ -12,7 +12,7 @@ class ScheduleController {
       if (resultData.length === 0) {
         next(
           ApiError.notFound(
-            'расписания не найдено либо не существует',
+            'Расписание не найдено либо не существует',
             'scheduleController/getOne'
           )
         );
@@ -41,7 +41,7 @@ class ScheduleController {
       if (getWeekResult.length === 0) {
         next(
           ApiError.notFound(
-            'расписания не найдено либо не существует',
+            'Расписание не найдено либо не существует',
             'scheduleController/getWeek'
           )
         );
@@ -74,7 +74,9 @@ class ScheduleController {
             name: schedule.disciplineName,
             classType: schedule.classType,
             placeActivity: schedule.locationAddress,
-            teacher: formatTeacherName(schedule.users[0])
+            teacher: formatTeacherName(schedule.users[0]),
+            classRoom: schedule.classRoom,
+            group: schedule.group
         });
     });
 
@@ -108,7 +110,7 @@ class ScheduleController {
       if (!resultData) {
         next(
           ApiError.notFound(
-            'расписания не найдено либо не существует',
+            'Расписание не найдено либо не существует',
             'scheduleController/getOne'
           )
         );
