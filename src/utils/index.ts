@@ -5,6 +5,10 @@ export const getTeacherData = async (teacher: any) => {
   return await User.findOne({ _id: { $in: teacher } });
 };
 
+export const getUsersData = async (usersArray: any) => {
+  return await User.find({ _id: { $in: usersArray } });
+};
+
 export const getGroupData = async (groupId: any) => {
   return await Group.findOne({ _id: groupId });
 };
@@ -12,6 +16,12 @@ export const getGroupData = async (groupId: any) => {
 export const convertResponse = async (data: any) => {
   if (Array.isArray(data)) {
     for (const item of data) {
+      if (item.users) {
+        const usersData = await getUsersData(
+            item.users.map((userId: any) => userId.toString())
+        );
+        item.users = usersData;
+      }
       if (item.teacher) {
         const teacherData = await getTeacherData(item.teacher.toString());
         item.teacher = teacherData;
@@ -23,6 +33,12 @@ export const convertResponse = async (data: any) => {
       }
     }
   } else {
+    if (data.users) {
+      const usersData = await getUsersData(
+          data.users.map((userId: any) => userId.toString())
+      );
+      data.users = usersData;
+    }
     if (data.teacher) {
       const teacherData = await getTeacherData(data.teacher.toString());
       data.teacher = teacherData;
