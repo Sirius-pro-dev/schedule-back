@@ -2,7 +2,14 @@ import Schedule from '../models/schedule';
 import User from '../models/user';
 import Group from '../models/group';
 import ApiError from '../error/ApiError';
-import { convertResponse, formatTeacherName, getDayName, getWeekRange, isValidDate, isValidTimeRange} from '../utils';
+import {
+  convertResponse,
+  formatTeacherName,
+  getDayName,
+  getWeekRange,
+  isValidDate,
+  isValidTimeRange
+} from '../utils';
 
 class ScheduleController {
   static async getAll(req: any, res: any, next: any) {
@@ -32,10 +39,12 @@ class ScheduleController {
     try {
       const { week } = req.params;
 
-      const { startDate, endDate, currentYear, currentMonth } = getWeekRange(parseInt(week, 10));
+      const { startDate, endDate, currentYear, currentMonth } = getWeekRange(
+        parseInt(week, 10)
+      );
 
       const getWeekResult = await Schedule.find({
-          date: { $gte: startDate, $lte: endDate }
+        date: { $gte: startDate, $lte: endDate }
       });
 
       if (getWeekResult.length === 0) {
@@ -52,44 +61,52 @@ class ScheduleController {
 
       const response: any = {
         weekData: {
-            month: currentMonth,
-            year: currentYear,
-            week: week
-        },
-    };
+          month: currentMonth,
+          year: currentYear,
+          week: week
+        }
+      };
 
-    convertData.forEach((schedule: any) => {
-        const dayOfWeek = schedule.date.getDay();
+      for (let i = 1; i <= 6; i++) {
+        const dayOfWeek = i.toString();
+        const currentDate = new Date(startDate);
+        currentDate.setDate(currentDate.getDate() + (i - 1));
 
-        if (!response[dayOfWeek]) {
-            response[dayOfWeek] = {
-                date: schedule.date.getDate().toString(),
-                day: getDayName(dayOfWeek),
-                lessons: []
-            };
+        response[dayOfWeek] = {
+          date: currentDate.getDate().toString(),
+          day: getDayName(i),
+          lessons: []
+        };
+      }
+
+      convertData.forEach((schedule: any) => {
+        const dayOfWeek = schedule.date.getDay().toString();
+
+        if (!response[dayOfWeek].date) {
+          response[dayOfWeek].date = schedule.date.getDate().toString();
         }
 
         response[dayOfWeek].lessons.push({
-            time: schedule.time,
-            name: schedule.disciplineName,
-            classType: schedule.classType,
-            placeActivity: schedule.locationAddress,
-            teacher: formatTeacherName(schedule.users[0]),
-            classRoom: schedule.classRoom,
-            group: schedule.group
+          time: schedule.time,
+          name: schedule.disciplineName,
+          classType: schedule.classType,
+          placeActivity: schedule.locationAddress,
+          teacher: formatTeacherName(schedule.teacher),
+          classRoom: schedule.classRoom,
+          group: schedule.group
         });
-    });
-
-    Object.values(response).forEach((day: any) => {
-      if (!day.date) {
-        return;
-      }
-      day.lessons.sort((a: any, b: any) => {
-          const timeA: any = a.time.split(":")[0];
-          const timeB: any = b.time.split(":")[0];
-          return timeA - timeB;
       });
-    });
+
+      for (let i = 1; i <= 5; i++) {
+        const dayOfWeek = i.toString();
+        if (response[dayOfWeek].date) {
+          response[dayOfWeek].lessons.sort((a: any, b: any) => {
+            const timeA: any = a.time.split(':')[0];
+            const timeB: any = b.time.split(':')[0];
+            return timeA - timeB;
+          });
+        }
+      }
 
       return res.status(200).json(response);
     } catch (e: any) {
@@ -127,8 +144,16 @@ class ScheduleController {
 
   static async createSchedule(req: any, res: any, next: any) {
     try {
-      const { date, time, disciplineName, classType, teacher, users, group, locationAddress, classRoom } =
-        req.body;
+      const {
+        date,
+        time,
+        disciplineName,
+        classType,
+        teacher,
+        group,
+        locationAddress,
+        classRoom
+      } = req.body;
 
       if (
         !date ||
@@ -136,7 +161,6 @@ class ScheduleController {
         !disciplineName ||
         !classType ||
         !teacher ||
-        !users ||
         !group ||
         !locationAddress ||
         !classRoom
@@ -147,18 +171,16 @@ class ScheduleController {
         return;
       }
 
-      const teacherData = await User.findOne({ userName: { $in: teacher }, role: { $in: "преподаватель" }});
+      const teacherData = await User.findOne({
+        userName: { $in: teacher },
+        role: { $in: 'преподаватель' }
+      });
       if (!teacherData) {
         next(
-          ApiError.notFound('Не найден преподователь', 'scheduleController/createSchedule')
-        );
-        return;
-      }
-
-      const userData = await User.find({ userName: { $in: users } });
-      if (userData.length !== users.length) {
-        next(
-          ApiError.notFound('Не найден пользователь', 'scheduleController/createSchedule')
+          ApiError.notFound(
+            'Не найден преподователь',
+            'scheduleController/createSchedule'
+          )
         );
         return;
       }
@@ -170,11 +192,21 @@ class ScheduleController {
       }
 
       if (!isValidDate(date)) {
-        next(ApiError.badRequest('Дата не соответсвует формату "yyyy-mm-dd"', 'scheduleController/createSchedule'));
+        next(
+          ApiError.badRequest(
+            'Дата не соответсвует формату "yyyy-mm-dd"',
+            'scheduleController/createSchedule'
+          )
+        );
       }
 
       if (!isValidTimeRange(time)) {
-        next(ApiError.badRequest('Время не соответсвует формату "hh:mm-hh:mm" с обязательным диапозоном в 1ч 30мин', 'scheduleController/createSchedule'));
+        next(
+          ApiError.badRequest(
+            'Время не соответсвует формату "hh:mm-hh:mm" с обязательным диапозоном в 1ч 30мин',
+            'scheduleController/createSchedule'
+          )
+        );
       }
 
       const resultData = await Schedule.create({
@@ -183,7 +215,6 @@ class ScheduleController {
         disciplineName: disciplineName,
         classType: classType,
         teacher: teacherData,
-        users: userData,
         group: groupData,
         locationAddress: locationAddress,
         classRoom: classRoom
@@ -219,11 +250,23 @@ class ScheduleController {
         return;
       }
 
-      const resultData = await Schedule.findOneAndDelete({ _id: id });
+      let resultData;
+
+      try {
+        resultData = await Schedule.findOneAndDelete({ _id: id });
+      } catch (e) {
+        next(
+          ApiError.badRequest(
+            'Количество символов должно быть 24',
+            'scheduleController/deleteSchedule'
+          )
+        );
+        return;
+      }
 
       if (!resultData) {
         next(
-          ApiError.notFound(
+          ApiError.badRequest(
             'расписание не удалилось, произошла ошибка. Проверте правильность написания идентификатора',
             'scheduleController/deleteSchedule'
           )

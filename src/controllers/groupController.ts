@@ -72,14 +72,24 @@ class GroupController {
         return;
       }
 
-      const group = await Group.create({
-        name: name,
-        major: major,
-        course: course,
-        studyForm: studyForm,
-        educationLevel: educationLevel,
-        users: userData
-      });
+      let group;
+      try {
+        group = await Group.create({
+          name: name,
+          major: major,
+          course: course,
+          studyForm: studyForm,
+          educationLevel: educationLevel,
+          users: userData
+        });
+      } catch (e) {
+        next(
+          ApiError.badRequest(
+            'Данная группа уже существует',
+            'groupContoller/createGroup'
+          )
+        );
+      }
 
       return res.status(201).json(group);
     } catch (e: any) {
