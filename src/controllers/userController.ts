@@ -51,24 +51,36 @@ class UserController {
     }
   }
 
-  static async getTeacherOrGroup (req: any, res: any, next: any) {
+  static async getTeacherOrGroup(req: any, res: any, next: any) {
     try {
       const { tab } = req.query;
       if (tab !== 'преподаватель' && tab !== 'группа') {
-        return next(ApiError.badRequest('Указаны не существующие типы', 'userController/getTeacherOrGroup'));
+        return next(
+          ApiError.badRequest(
+            'Указаны не существующие типы',
+            'userController/getTeacherOrGroup'
+          )
+        );
       }
 
       switch (tab) {
-        case 'преподаватель': 
+        case 'преподаватель':
           const users = await User.find({ role: tab });
           if (users.length === 0) {
-            return next(ApiError.notFound('Пользователи не найдены', 'userController/getTeacherOrGroup'));
+            return next(
+              ApiError.notFound(
+                'Пользователи не найдены',
+                'userController/getTeacherOrGroup'
+              )
+            );
           }
           return res.status(200).json(users);
         case 'группа':
           const group = await Group.find({});
           if (group.length === 0) {
-            return next(ApiError.notFound('Группы не найдены', 'userController/getTeacherOrGroup'));
+            return next(
+              ApiError.notFound('Группы не найдены', 'userController/getTeacherOrGroup')
+            );
           }
           return res.status(200).json(group);
       }
