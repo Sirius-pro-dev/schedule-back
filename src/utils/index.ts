@@ -98,5 +98,5 @@ export const getDayName = (dayOfWeek: any) => {
 };
 
 export const formatTeacherName = (user: any) => {
-  return `${user.name} ${user.surName} ${user.lastName}`;
+  return `${user.lastName} ${user.name} ${user.surName}`;
 };
